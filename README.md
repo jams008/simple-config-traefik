@@ -4,7 +4,7 @@ Traefik is a modern HTTP reverse proxy and load balancer that makes deploying mi
 ## example run config worker / service:
 how to create external network
 - `docker network create web`
-- add labels run command \
+- add labels run command 
 >docker-compose
 ```
     labels:
