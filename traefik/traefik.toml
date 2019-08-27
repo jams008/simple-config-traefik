@@ -1,0 +1,69 @@
+# traefik.toml
+################################################################
+# Global configuration
+################################################################
+
+# Log level
+#
+# Optional
+# Default: "ERROR"
+# Accepted values, in order of severity: "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC"
+# Messages at and above the selected level will be logged.
+#
+logLevel = "ERROR"
+
+defaultEntryPoints = ["http", "https"]
+
+# Entrypoints, http and https
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+  [entryPoints.dashboard]
+  address = ":8080"
+    [entryPoints.dashboard.auth]
+      [entryPoints.dashboard.auth.basic]
+        users = ["admin:$apr1$hmT7741g$HK1Zkk1b5VztllyU4FvEF/"] # u : admin | p : admin
+        # get md5 from htpasswd or http://www.htaccesstools.com/htpasswd-generator/
+        # and then double all $ to $$ to avoid docker-compose 
+
+[api]
+entrypoint="dashboard"
+
+
+### This is to add containers that previously were not labeled to the traefik and may not turn off the service.
+#[file]
+#[backends]
+#  [backends.backend1]
+#    [backends.backend1.servers.server1]
+#       url = "http://172.26.0.10:80"
+#       weight = 1
+
+#[frontends]
+#  [frontends.frontend1]
+#      backend = "backend1"
+#      passHostHeader = true
+#      [frontends.frontend1.routes.example]
+#          rule = "Host:example.com"
+
+[acme]
+email = "admin@gmail.com"
+storageFile = "/etc/traefik/acme/acme.json"
+entryPoint = "https"
+#caServer = "https://acme-staging.api.letsencrypt.org/directory"
+onDemand = false
+OnHostRule = true
+  [acme.httpChallenge]
+  # EntryPoint to use for the challenges.
+  # Required
+  entryPoint = "http"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+#domain = "traefik.example.com"
+watch = true
+exposedbydefault = false

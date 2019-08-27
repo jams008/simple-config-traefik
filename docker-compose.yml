@@ -1,0 +1,18 @@
+  traefik:
+    image: traefik
+    command: --docker 
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./traefik/acme:/etc/traefik/acme
+    container_name: traefik    
+
+networks:
+  web:
+    external: true
