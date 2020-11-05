@@ -61,4 +61,7 @@ docker run -d \
 ```
 
 **Thanks**, Detail config you check link below. \
-Refrence : [link](https://docs.traefik.io)
+Refrence : 
+- [Dokumentasi link](https://docs.traefik.io)
+- [Refrence Create config 1](https://www.smarthomebeginner.com/traefik-2-docker-tutorial/)
+- [Refrence Create config 2](https://github.com/naturalis/docker-lamp)
