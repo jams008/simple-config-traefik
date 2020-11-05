@@ -1,6 +1,17 @@
+version: '3'  
+
+x-logging:
+  &default-logging
+  options:
+    max-size: '10m'
+    max-file: '5'
+  driver: json-file
+
+services:   
   traefik:
     image: traefik
-    command: --docker 
+    command: --docker
+    logging: *default-logging
     ports:
       - 80:80
       - 443:443
@@ -13,6 +24,3 @@
       - ./traefik/acme:/etc/traefik/acme
     container_name: traefik    
 
-networks:
-  web:
-    external: true

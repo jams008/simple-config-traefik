@@ -1,0 +1,57 @@
+version: '3'
+
+x-logging:
+  &default-logging
+  options:
+    max-size: '10m'
+    max-file: '5'
+  driver: json-file
+
+services:
+  #Example Add Service Using traefik v2
+  webserver:
+    image: nginx:1.17.10-alpine
+    container_name: webserver
+    restart: unless-stopped
+    logging: *default-logging
+    tty: true
+    labels:
+      - "traefik.http.routers.webserver.rule=Host(`example.com`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.webserver.entrypoints=https"
+      - "traefik.http.routers.webserver.tls.certresolver=cloudflare"
+      - "traefik.http.routers.webserver.tls=true"
+
+  traefik:
+    image: traefik:v2.2
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--entrypoints.http.http.redirections.entrypoint.to=https"
+      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge=true"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.cloudflare.acme.email=${CF_API_EMAIL}"
+      - "--certificatesresolvers.cloudflare.acme.storage=/letsencrypt/cloudflare.json"
+      - "--certificatesresolvers.cloudflare.acme.dnschallenge.delaybeforecheck=30"
+      - "--certificatesResolvers.le.acme.dnsChallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+      - "--global.sendAnonymousUsage=false"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    restart: unless-stopped
+    logging: *default-logging
+    container_name: traefik
+    environment:
+      - CF_ZONE_API_TOKEN=${CF_ZONE_API_TOKEN}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - CF_API_EMAIL=${CF_API_EMAIL}
